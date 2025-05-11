@@ -1,4 +1,15 @@
 services:
+  php:
+    container_name: tdfs-php841
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./:/applicacao
+    restart: always
+
   postgres:
     container_name: tdfs-postgres
     image: postgres:16.9-bullseye
