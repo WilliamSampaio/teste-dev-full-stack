@@ -1,0 +1,13 @@
+services:
+  postgres:
+    container_name: tdfs-postgres
+    image: postgres:16.9-bullseye
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=backend
+    ports:
+      - 6543:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: always
