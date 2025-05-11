@@ -53,7 +53,13 @@ class UsuarioController extends Controller
      */
     public function show(string $uuid)
     {
-        return Usuario::where('uuid', $uuid)->first();
+        $usuario = Usuario::where('uuid', $uuid)->first();
+
+        if (!$usuario) {
+            return response(status: 404);
+        }
+
+        return response()->json($usuario);
     }
 
     /**
@@ -96,8 +102,18 @@ class UsuarioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $uuid)
     {
-        //
+        $usuario = Usuario::where('uuid', $uuid)->first();
+
+        if (!$usuario) {
+            return response(status: 404);
+        }
+
+        if (!$usuario->delete()) {
+            return response(status: 400);
+        }
+
+        return response(status: 200);
     }
 }
