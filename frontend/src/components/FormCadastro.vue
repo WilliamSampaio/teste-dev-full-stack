@@ -1,16 +1,18 @@
 <template>
+  <v-alert v-if="message.type && message.text" class="mb-3" :type="message.type" variant="tonal">{{ message.text }}</v-alert>
   <v-form ref="form">
-    <v-text-field v-model="data.nome" class="mb-2" label="Nome" :rules="nomeRules" />
+    <input v-model="cadastro.uuid" type="hidden">
+    <v-text-field v-model="cadastro.nome" class="mb-2" label="Nome" :rules="nomeRules" />
     <v-text-field
-      v-model="data.cpf"
+      v-model="cadastro.cpf"
       v-maska="'###.###.###-##'"
       class="mb-2"
       label="CPF"
       :rules="cpfRules"
     />
-    <v-text-field v-model="data.email" class="mb-2" label="E-mail" :rules="emailRules" />
+    <v-text-field v-model="cadastro.email" class="mb-2" label="E-mail" :rules="emailRules" />
     <v-text-field
-      v-model="data.senha_1"
+      v-model="cadastro.senha_1"
       :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
       class="mb-2"
       label="Senha"
@@ -19,7 +21,7 @@
       @click:append-inner="visible = !visible"
     />
     <v-text-field
-      v-model="data.senha_2"
+      v-model="cadastro.senha_2"
       class="mb-2"
       label="Confirme a Senha"
       :rules="[ruleSenhaConfirmacao]"
@@ -33,20 +35,28 @@
     <v-btn class="me-4" type="submit" @click="cadastrar">
       submit
     </v-btn>
-    <v-btn @click="handleReset">
-      clear
-    </v-btn>
   </v-form>
 </template>
 
 <script setup>
   import { cpfRules, emailRules, nomeRules, senhaRules } from '@/rules';
-  import { computed, reactive, ref } from 'vue';
+  import { computed, defineProps, onBeforeMount, reactive, ref } from 'vue';
   import { vMaska } from 'maska/vue'
+  import { getUsuario } from '@/api';
 
   const form = ref(null);
 
-  const data = reactive({
+  const props = defineProps({
+    uuid: null,
+  });
+
+  const message = reactive({
+    type: null,
+    text: null,
+  });
+
+  const cadastro = reactive({
+    uuid: null,
     nome: null,
     cpf: null,
     email: null,
@@ -55,7 +65,7 @@
   });
 
   const ruleSenhaConfirmacao = computed(() => {
-    return () => data.senha_1 === data.senha_2 || 'Senhas diferentes!';
+    return () => cadastro.senha_1 === cadastro.senha_2 || 'Senhas diferentes!';
   });
 
   const visible = ref(false);
@@ -67,6 +77,21 @@
       }
     });
   };
+
+  onBeforeMount(() => {
+    if(props.uuid){
+      getUsuario(props.uuid).then(response => {
+        const { data } = response;
+        cadastro.uuid = data.uuid;
+        cadastro.nome = data.nome;
+        cadastro.cpf = data.cpf;
+        cadastro.email = data.email;
+      }).catch(() => {
+        message.type = 'error';
+        message.text = 'Falha em buscar usuario.'
+      });
+    }
+  });
 </script>
 
 <style scoped></style>
