@@ -1,14 +1,18 @@
 services:
-  php:
+  php-apache:
     container_name: tdfs-php841
     build:
-      context: .
+      context: backend
       dockerfile: Dockerfile
     env_file:
-      - .env
-    volumes:
-      - ./:/applicacao
+      - ./backend/.env
+    ports:
+      - 8080:80
+    # volumes:
+    #   - ./backend:/var/www/html
     restart: always
+    depends_on:
+      - postgres
 
   postgres:
     container_name: tdfs-postgres
