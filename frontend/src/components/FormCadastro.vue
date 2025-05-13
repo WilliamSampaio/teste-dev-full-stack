@@ -1,5 +1,6 @@
 <template>
-  <v-alert v-if="message.type && message.text" class="mb-3" :type="message.type" variant="tonal">{{ message.text }}</v-alert>
+  <v-alert v-if="message.type && message.text" class="mb-3" :type="message.type" variant="tonal">{{ message.text
+  }}</v-alert>
   <v-form ref="form">
     <input v-model="cadastro.uuid" type="hidden">
     <v-text-field v-model="cadastro.nome" class="mb-2" label="Nome" :rules="nomeRules" />
@@ -32,9 +33,17 @@
       maiúscula, caractere numérico, caractere especial.
     </v-alert>
 
-    <v-btn class="me-4" type="submit" @click="cadastrar">
-      submit
-    </v-btn>
+    <v-sheet class="text-center mb-3">
+      <v-btn
+        color="primary"
+        rounded="xl"
+        size="large"
+        variant="flat"
+        @click="cadastrar"
+      >
+        {{ cadastro.uuid ? 'Editar' : 'Cadastrar' }}
+      </v-btn>
+    </v-sheet>
   </v-form>
 </template>
 
@@ -42,7 +51,10 @@
   import { cpfRules, emailRules, nomeRules, senhaRules } from '@/rules';
   import { computed, defineProps, onBeforeMount, reactive, ref } from 'vue';
   import { vMaska } from 'maska/vue'
-  import { getUsuario } from '@/api';
+  import { getUsuario, postUsuario, putUsuario } from '@/api';
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
 
   const form = ref(null);
 
@@ -70,26 +82,55 @@
 
   const visible = ref(false);
 
+  const buscar = () => {
+    getUsuario(props.uuid).then(response => {
+      const { data } = response;
+      cadastro.uuid = data.uuid;
+      cadastro.nome = data.nome;
+      cadastro.cpf = data.cpf;
+      cadastro.email = data.email;
+    }).catch(() => {
+      message.type = 'error';
+      message.text = 'Falha em buscar usuário.'
+    });
+  };
+
   const cadastrar = () => {
     form.value.validate().then(v => {
       if (v.valid) {
-        'a'
+        if (cadastro.uuid !== null) {
+          putUsuario(cadastro.uuid, {
+            nome: cadastro.nome,
+            cpf: cadastro.cpf.replace(/[^0-9]/g, ''),
+            email: cadastro.email,
+            senha: cadastro.senha_1,
+          }).then(() => {
+            message.type = 'success';
+            message.text = 'Usuário atualizado.'
+          }).catch(() => {
+            message.type = 'error';
+            message.text = 'Falha em atualizar usuário.'
+          });
+        } else {
+          postUsuario({
+            nome: cadastro.nome,
+            cpf: cadastro.cpf.replace(/[^0-9]/g, ''),
+            email: cadastro.email,
+            senha: cadastro.senha_1,
+          }).then(() => {
+            router.push('/');
+          }).catch(() => {
+            message.type = 'error';
+            message.text = 'Falha em cadastrar usuário.'
+          });
+        }
       }
     });
   };
 
   onBeforeMount(() => {
-    if(props.uuid){
-      getUsuario(props.uuid).then(response => {
-        const { data } = response;
-        cadastro.uuid = data.uuid;
-        cadastro.nome = data.nome;
-        cadastro.cpf = data.cpf;
-        cadastro.email = data.email;
-      }).catch(() => {
-        message.type = 'error';
-        message.text = 'Falha em buscar usuario.'
-      });
+    if (props.uuid) {
+      buscar();
     }
   });
 </script>

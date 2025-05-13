@@ -17,9 +17,7 @@
         <td>{{ usuario.nome }}</td>
         <td>{{ usuario.cpf }}</td>
         <td class="pa-1">
-          <v-btn color="info" icon="mdi mdi-magnify" variant="tonal" />
-          <!-- <v-btn icon="mdi mdi-pencil" color="success" variant="tonal"></v-btn>
-          <v-btn icon="mdi mdi-trash-can-outline" color="error" variant="tonal"></v-btn> -->
+          <v-btn color="info" icon="mdi mdi-magnify" :to="`/visualizar?uuid=${usuario.uuid}`" variant="tonal" />
         </td>
       </tr>
     </tbody>

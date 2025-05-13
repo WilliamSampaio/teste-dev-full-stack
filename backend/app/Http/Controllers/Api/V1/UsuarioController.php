@@ -89,7 +89,7 @@ class UsuarioController extends Controller
             'nome' => $data['nome'],
             'cpf' => $data['cpf'],
             'email' => $data['email'],
-            'senha' => $data['senha'],
+            'senha' => Hash::make($data['senha']),
         ]);
 
         if (!$updated) {
