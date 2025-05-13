@@ -34,3 +34,5 @@ Caso precise popular a tabela **usuarios** com dados de teste execute o comando:
 ```bash
 docker exec -it tdfs-php artisan db:seed
 ```
+
+E por fim, acesse o frontend por meio do endereço: http://localhost:8080.
