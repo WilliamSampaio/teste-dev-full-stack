@@ -1,15 +1,37 @@
 services:
-  php-apache:
-    container_name: tdfs-php841
+
+  frontend:
+    container_name: tdfs-frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:80
+    restart: always
+    depends_on:
+      - nginx
+
+  nginx:
+    container_name: tdfs-nginx
+    image: nginx:alpine
+    ports:
+      - 8000:80
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+      - ./nginx:/etc/nginx/conf.d/
+    restart: always
+    depends_on:
+      - php
+
+  php:
+    container_name: tdfs-php
     build:
       context: backend
       dockerfile: Dockerfile
-    env_file:
-      - ./backend/.env
-    ports:
-      - 8080:80
-    # volumes:
-    #   - ./backend:/var/www/html
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
     restart: always
     depends_on:
       - postgres
