@@ -1,5 +1,8 @@
 FROM php:8.4.1-fpm-bullseye
 
+ENV COMPOSER_ALLOW_SUPERUSER 1
+ENV COMPOSER_PROCESS_TIMEOUT 900
+
 # Install Additional System Dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
